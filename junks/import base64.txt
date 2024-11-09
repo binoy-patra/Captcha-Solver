@@ -1,0 +1,18 @@
+import base64
+
+# The base64-encoded captcha image string (after "base64,")
+captcha_base64 = """
+iVBORw0KGgoAAAANSUhEUgAAAMcAAAAuCAYAAACcTg2MAAACoklEQVR42u2cXW6EMAyEuUBP1ZP2pO5DparqLogQ/8zYY4k3lgXbXzIOJschk8muzOznkMnik+3fIThksjdgoALCAq5McAgO2f2EEhz3rvvk+pl+lmTLgeOJn9NjAw7Hrz+mw0EBrTWDI6ogr4QDIZG874FmRuskq6Li4CmrGBOJVp7tBkxwYMMBk1CrR7UUyLg/NF8x5ovgEByCo4MPBEerxAiXxF3hWHHc5blT4SAo8lPrxYVnS1+6hSnIDsExosDf8PGMd3DRwe4Mx1AwZtiFU9xGBq92hD9HyYilWaO4sAEKNgQcTqP142e5G6vMto4KOG6ed+5ndjhQ/6cKjhtxsoh4ZuVKwCpVDzhsFhzuyRMFh3HD0UPDpvbPEMJxNyGi2r2vft8ejilgNJ85ls5jHATS4Zgip7xHKMHRHJD2RfjH55c1hyMqrsHPeVosQ8RlxOoUHxxvkwZF4qDBEXKv4O80tpY8PeBAGlFZZqsKWeWe0whvVlebyQbBAaP9vWuYjOd1hwMUjFJZhXL/i/8V1nyXKS3L4DjpC7ImOrYVHAYER+YsUgLHyQOVwnEIDtgZvmqQS4cDsc5AgQMxaZl2EowGJDQ2Y8F4hcMI1v+pWtHRv9ak0K1lX3Q1gCOykLZGcESDEQKHgcAR1amKPGvswGFgvnA738nJ24laLhGI4KhqA3+q+1HeeSz7zak1IgSO1DYNcjh2feUFR2WPmXveoPQNCQ5eOI4Dp/lScAgOODgOZ99F+Yhxpa/eAuBgMqKdASn2PINz1FaA37wEjFqVExxlcLzsdli9bVJkcDLggJFT6P7PHPmdwbKOcPhdoxaO6CSLCj4bHPV6TnCMgWOWVWnN4XDIMHWn4JAJDiI4XLeAFBzta4aw5BQcktIj4PgGV56egSpZ8VAAAAAASUVORK5CYII=
+"""  # Replace with the actual base64 string
+
+# Decode the base64 string to binary data
+image_data = base64.b64decode(captcha_base64)
+
+# Save the image as a PNG file
+with open("captcha_image1.png", "wb") as file:
+    file.write(image_data)
+
+print("Captcha image saved successfully.")
+
+
+

@@ -1,0 +1,5 @@
+Flow of code: 
+1. read the images from image folder 
+2. apply traditional OCR to read the text 
+3. apply regex to avoid special character and exact 6 letter 
+4. make a excel that contains image name and extracted text 

@@ -1,0 +1,32 @@
+from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+image_path = r"D:\Personal Documents\CS\images\captcha11.png"
+
+try:
+    # Open the image
+    img = Image.open(image_path)
+
+    # Convert the image to grayscale
+    img = img.convert("L")
+
+    # Enhance the image (increase contrast)
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(2)
+
+    # Apply a filter to reduce noise
+    img = img.filter(ImageFilter.MedianFilter())
+
+    # Perform OCR on the preprocessed image
+    extracted_text = pytesseract.image_to_string(img)
+
+    extracted_data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    print(extracted_data)
+
+
+    print(extracted_text)
+
+except Exception as e:
+    print(f"Error processing the image: {e}")

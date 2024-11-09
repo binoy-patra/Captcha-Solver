@@ -1,0 +1,55 @@
+** IREPS Scripts Details
+
+** Mainly generate a excel file that contains Tender details. 
+** Details of columns: 
+1. Zone: The railway zone related to the tender.
+2. Dept.: Department or railway division name extracted from the PDF.
+3. Tender No.: Unique tender number extracted from the PDF.
+4. Tender Title: Title or name of the work associated with the tender.
+5. Type: Type of the tender (e.g., Open, Limited).
+6. Due Date/Time: Closing date and time of the tender.
+7. Due Days: Number of days remaining or duration between the uploading and closing dates.
+8. Advertised Value: The tender’s advertised value.
+9. Doc Link: URL of the tender document PDF for reference.
+10. Bidding Type: Type of bidding allowed for this tender (e.g., single, multiple).
+11. Bidding System: System used for bidding (e.g., single-stage, two-stage).
+12. Date Time Of Uploading Tender: Date and time when the tender was uploaded.
+13. Pre-Bid Conference Date Time: Date and time for any pre-bid conference related to the tender.
+14. Earnest Money (Rs.): Earnest money deposit required for the tender in rupees.
+15. Contract Type: Type of contract (e.g., works, supplies) associated with the tender.
+
+
+
+** Library Used: Selenium, xlsxwriter, requests, pdfplumber, re, os, sys, time, BeautifulSoup,math, subprocess, json, scraping_library 
+
+** Function and their application 
+1. load_otp() : retrieve an OTP (one-time password) from a configuration file
+2. load_otp_date() : retrieve date of an OTP (one-time password) from a configuration file
+3. is_otp_valid() (using load_otp_date() ,load_otp()) : Validate OTP based on time 
+
+4. is_under_maintenance(driver, url) : check if a webpage is under maintenance
+
+5. get_verification(driver): extract a verification code from a CAPTCHA image on the page. captcha code is cominhg with the image itself (inspect and select captcha to know more)
+
+6. login(driver, mobile_no) (using load_otp(), get_verification(driver) ): Refreshes the page, handle captcha And logion as guest
+
+7. is_no_result_found_present_in_page(driver) : determine if a page contains the message "No Results Found".
+
+8. download_pdf(url, retries=5) : download a PDF from the specified URL. If the download fails
+9. getpdfdata(): read the pdfand get data from it.
+
+10. tender(driver, script_number, script_name, program_file_dir)
+11. get_sms_message()
+12. generate_otp(driver, mobile_no) (Using get_verification()
+13. main() (Using is_otp_valid(), is_under_maintenance(), 
+
+
+
+
+
+what i have understood from the website is : 
+1. https://www.ireps.gov.in/epsn/guestLogin.do 
+2. login 
+3. custumSearchId and add filters 
+4. 
+

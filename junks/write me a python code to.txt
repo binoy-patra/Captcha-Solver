@@ -1,0 +1,1578 @@
+write me a python code to:
+1. read the images from image folder (will provide path of the folder that has 100 images, so need to run the loop 100 times) 
+2. apply traditional OCR to read the text 
+
+3. make a excel that contains image name and extracted text 
+
+ChatGPT said:
+ChatGPT
+Here's a Python code that reads images from a specified folder, applies OCR using the pytesseract library to extract text, and saves the results in an Excel file using pandas:
+
+python
+Copy code
+import os
+import pytesseract
+from PIL import Image
+import pandas as pd
+
+# Path to the folder containing the images
+image_folder = 'path_to_your_image_folder'  # Replace with the actual folder path
+
+# Initialize an empty list to hold the image names and extracted text
+data = []
+
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Steps for using the code:
+Install dependencies:
+
+Install pytesseract, pillow, and pandas if you haven't already:
+bash
+Copy code
+pip install pytesseract pillow pandas
+Download Tesseract OCR:
+
+You need to have Tesseract OCR installed on your system. You can download it from here.
+After installation, make sure Tesseract is in your system’s PATH or specify the path to the tesseract executable in your code like this:
+python
+Copy code
+pytesseract.pytesseract.tesseract_cmd = r'C:\path_to_tesseract\tesseract.exe'  # For Windows
+Modify the image folder path:
+
+Replace 'path_to_your_image_folder' with the actual path of your folder containing the 100 images.
+What it does:
+Reads each image from the folder.
+Applies OCR to extract the text using pytesseract.
+Creates an Excel file (extracted_texts.xlsx) that contains the image name and the extracted text.
+Let me know if you'd like to tweak or enhance the code further!
+
+
+
+
+
+
+You said:
+i am using D drive and dont want to include pytesseract to my system's path what to do?
+ChatGPT said:
+ChatGPT
+If you are using the D: drive and don't want to include Tesseract in your system's PATH, you can directly specify the path to the Tesseract executable in your code. Here's how you can do that:
+
+Find the Tesseract executable path:
+
+When you install Tesseract, you will have the executable tesseract.exe located in a directory, e.g., D:\Tesseract\tesseract.exe.
+Specify the Tesseract path in the code:
+
+In your Python script, before using pytesseract, set the path to the tesseract.exe executable like this:
+python
+Copy code
+import pytesseract
+
+# Specify the path to the tesseract executable directly
+pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract\tesseract.exe'  # Adjust this to your Tesseract path
+This will allow you to use Tesseract without needing to add it to the system’s PATH.
+
+Full example with the path specified:
+python
+Copy code
+import os
+import pytesseract
+from PIL import Image
+import pandas as pd
+
+# Specify the path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract\tesseract.exe'  # Adjust this to your Tesseract path
+
+# Path to the folder containing the images
+image_folder = 'D:\\path_to_your_image_folder'  # Replace with your folder path on D drive
+
+# Initialize an empty list to hold the image names and extracted text
+data = []
+
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Key notes:
+Replace r'D:\Tesseract\tesseract.exe' with the actual path to your tesseract.exe.
+Ensure that you are using the correct escape character (\\) or a raw string (r'...') for paths in Windows.
+This method should work perfectly without modifying your system's PATH.
+
+
+
+
+
+
+You said:
+Error processing captcha1.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha10.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha11.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha12.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha13.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha14.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha15.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha16.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha17.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha18.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha19.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha2.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha20.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha21.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha22.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha23.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha24.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha25.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha26.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha27.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha28.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha29.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha3.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha30.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha31.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha32.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha33.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha34.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha35.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha36.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha37.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha38.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha39.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha4.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha40.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha41.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha42.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha43.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha44.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha45.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha46.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha47.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha48.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha49.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha5.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha50.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha51.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha52.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha53.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha54.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha55.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha56.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha57.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha58.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha59.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha6.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha60.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha61.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha62.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha63.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha64.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha65.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha66.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha67.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha68.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha69.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha7.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha70.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha71.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha72.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha73.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha74.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha75.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha76.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha77.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha78.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha79.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha8.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha80.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Error processing captcha9.png: D:\Personal Documents\CS\tesseract\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Data has been saved to extracted_texts.xlsx
+ChatGPT said:
+ChatGPT
+The error you're seeing indicates that pytesseract is unable to find the Tesseract executable at the specified path. Here are some steps you can follow to resolve the issue:
+
+1. Check the path to Tesseract:
+Ensure that the path you provided for Tesseract is correct. Double-check that tesseract.exe exists at D:\Personal Documents\CS\tesseract\tesseract.exe.
+
+2. Ensure Correct Path Formatting:
+When specifying file paths in Windows, use either double backslashes (\\) or a raw string (r'...') to avoid escape character issues. It looks like you are already using a raw string for the path, but verify it again. Here's an example:
+
+python
+Copy code
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\tesseract\tesseract.exe'
+If your folder path contains spaces (like Personal Documents), the raw string format should still handle it properly.
+
+3. Check if Tesseract is installed:
+Make sure that Tesseract OCR is installed at the specified location. You can test it by running the following command in your Command Prompt (cmd) to check if Tesseract is accessible:
+
+bash
+Copy code
+"D:\Personal Documents\CS\tesseract\tesseract.exe" --version
+If it returns the version of Tesseract, then it's correctly installed.
+
+4. Try using a shorter path:
+Sometimes long paths with spaces can cause issues. Try moving the Tesseract folder to a shorter path without spaces (e.g., D:\Tesseract\tesseract.exe) and update your code accordingly:
+
+python
+Copy code
+pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract\tesseract.exe'  # Example with a shorter path
+5. Set the TESSDATA_PREFIX environment variable:
+Tesseract requires the TESSDATA_PREFIX environment variable to locate language data files. You can set this environment variable in your Python script if needed:
+
+python
+Copy code
+os.environ['TESSDATA_PREFIX'] = r'D:\Tesseract'
+This ensures Tesseract can find its language data files, which are typically located in the tessdata directory inside the Tesseract installation folder.
+
+Full updated example:
+python
+Copy code
+import os
+import pytesseract
+from PIL import Image
+import pandas as pd
+
+# Set the Tesseract executable path (make sure it's correct)
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable if necessary
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\tesseract'
+
+# Path to the folder containing the images
+image_folder = r'D:\path_to_your_image_folder'  # Replace with your folder path on D drive
+
+# Initialize an empty list to hold the image names and extracted text
+data = []
+
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Summary:
+Ensure that the Tesseract executable path is correct.
+If Tesseract is in a folder with spaces, use raw string formatting or escape the spaces correctly.
+Set the TESSDATA_PREFIX environment variable if needed.
+If the issue persists after these adjustments, let me know!
+
+
+
+
+
+
+You said:
+i installed in this location : D:\Personal Documents\CS\Tesseract\
+ChatGPT said:
+ChatGPT
+Memory updated
+Since you installed Tesseract in D:\Personal Documents\CS\Tesseract\, you'll need to update the path to reflect this in your script. Here's the updated code with the correct path:
+
+Updated Python Code:
+python
+Copy code
+import os
+import pytesseract
+from PIL import Image
+import pandas as pd
+
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable if needed
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+
+# Path to the folder containing the images
+image_folder = r'D:\path_to_your_image_folder'  # Replace with your folder path on D drive
+
+# Initialize an empty list to hold the image names and extracted text
+data = []
+
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Key Changes:
+Tesseract Path: Set the path to tesseract.exe as r'D:\Personal Documents\CS\Tesseract\tesseract.exe'.
+TESSDATA_PREFIX: Set the environment variable TESSDATA_PREFIX to r'D:\Personal Documents\CS\Tesseract', which is where Tesseract’s language data files should be located.
+This should resolve the issue you're facing. Let me know if it works!
+
+
+
+
+
+
+You said:
+this type of error: 
+Error processing captcha97.png: (1, 'Error opening data file D:\\Personal Documents\\CS\\Tesseract/eng.traineddata Please make sure the TESSDATA_PREFIX environment variable is set to your "tessdata" directory. Failed loading language \'eng\' Tesseract couldn\'t load any languages! Could not initialize tesseract.')
+Error processing captcha98.png: (1, 'Error opening data file D:\\Personal Documents\\CS\\Tesseract/eng.traineddata Please make sure the TESSDATA_PREFIX environment variable is set to your "tessdata" directory. Failed loading language \'eng\' Tesseract couldn\'t load any languages! Could not initialize tesseract.')
+Error processing captcha99.png: (1, 'Error opening data file D:\\Personal Documents\\CS\\Tesseract/eng.traineddata Please make sure the TESSDATA_PREFIX environment variable is set to your "tessdata" directory. Failed loading language \'eng\' Tesseract couldn\'t load any languages! Could not initialize tesseract.')
+Data has been saved to extracted_texts.xlsx
+ChatGPT said:
+ChatGPT
+The error you're encountering indicates that Tesseract is unable to find the language data files (like eng.traineddata) because it cannot locate the tessdata directory. This issue typically happens if the TESSDATA_PREFIX environment variable is not correctly set, or the required tessdata folder is not in the expected location.
+
+To fix this, follow these steps:
+
+Step 1: Check the tessdata Folder
+Ensure that the eng.traineddata file and other language data files are located inside the tessdata folder. This folder should be inside your Tesseract installation directory. The structure should look something like this:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract
+    ├── tessdata
+        └── eng.traineddata
+    └── tesseract.exe
+If the tessdata folder is missing, you'll need to download it. You can find the tessdata files here. Place the folder in the Tesseract directory.
+
+Step 2: Update TESSDATA_PREFIX
+Ensure that the TESSDATA_PREFIX environment variable points to the parent directory of the tessdata folder. It should not include the tessdata folder itself. Update your code to this:
+
+python
+Copy code
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable to the parent directory of tessdata
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+Step 3: Verify Installation
+After placing the tessdata folder and setting the TESSDATA_PREFIX, run the following in a Python shell or script to verify Tesseract can correctly access the trained data:
+
+python
+Copy code
+import pytesseract
+print(pytesseract.get_tesseract_version())  # Should show the Tesseract version if everything is set up correctly
+Step 4: Retry the Script
+Once you’ve confirmed that the tessdata folder is in the correct location and the TESSDATA_PREFIX is set, retry running your script.
+
+Let me know if this resolves the issue!
+
+
+
+
+
+
+You said:
+that mean whatever exe file i have downloaded, i have to cut and paste it in this d drive folder?
+ChatGPT said:
+ChatGPT
+Yes, if you have downloaded the Tesseract executable (tesseract.exe) and its associated files (including the tessdata folder), you should place everything in the correct directory structure on your D drive. Here's what you need to do:
+
+Move the Tesseract executable (tesseract.exe) to:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract\ 
+Move the tessdata folder (which contains language files like eng.traineddata) to the same directory, so your Tesseract directory structure looks like this:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract\
+    ├── tessdata\
+    │   └── eng.traineddata
+    └── tesseract.exe
+If you haven't downloaded the tessdata folder yet, you can download it from the official repository, and make sure the eng.traineddata file (or other language files you need) is inside the tessdata folder.
+
+Important Notes:
+The TESSDATA_PREFIX environment variable should be set to the parent folder of tessdata. So, the environment variable should be:
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract
+Once everything is in place, Tesseract should be able to find the language files, and the error should be resolved.
+
+Let me know if you need more assistance!
+
+
+
+
+
+
+You said:
+inside tessdata folder?
+ChatGPT said:
+ChatGPT
+Yes, the eng.traineddata file (or any other language data files) should be inside the tessdata folder. Here's how the folder structure should look:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract\
+    ├── tessdata\
+    │   └── eng.traineddata  # This is the English language data file (or any other language file you want to use)
+    └── tesseract.exe         # The Tesseract executable
+Steps to follow:
+Tesseract Executable: Make sure tesseract.exe is located in D:\Personal Documents\CS\Tesseract\.
+
+tessdata Folder: Inside the Tesseract directory, create a tessdata folder if it's not already there. Place the eng.traineddata file (and any other language files you want to use) inside this folder.
+
+You can download the eng.traineddata from the official Tesseract repository.
+
+Alternatively, if you've installed Tesseract via an installer, the tessdata folder should already be there.
+
+Environment Variable: Make sure the environment variable TESSDATA_PREFIX points to the parent directory of tessdata, which is D:\Personal Documents\CS\Tesseract.
+
+In your Python script, set it as:
+
+python
+Copy code
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+To summarize:
+The eng.traineddata (or any other language files) should be inside the tessdata folder.
+The path TESSDATA_PREFIX should point to the parent directory where the tessdata folder is located.
+Once these steps are followed, Tesseract should be able to locate the language files and process your images correctly.
+
+
+
+
+
+
+You said:
+still getting this kind of error: 
+Error processing captcha98.png: (1, 'Error opening data file D:\\Personal Documents\\CS\\Tesseract/eng.traineddata Please make sure the TESSDATA_PREFIX environment variable is set to your "tessdata" directory. Failed loading language \'eng\' Tesseract couldn\'t load any languages! Could not initialize tesseract.')
+Error processing captcha99.png: (1, 'Error opening data file D:\\Personal Documents\\CS\\Tesseract/eng.traineddata Please make sure the TESSDATA_PREFIX environment variable is set to your "tessdata" directory. Failed loading language \'eng\' Tesseract couldn\'t load any languages! Could not initialize tesseract.')
+Data has been saved to extracted_texts.xlsx
+ChatGPT said:
+ChatGPT
+It looks like the error persists despite having the eng.traineddata file in the correct location. Let's troubleshoot the issue further.
+
+Here are a few things to check and try:
+
+1. Verify the tessdata folder structure
+Ensure that the tessdata folder is located directly inside the Tesseract installation folder, and that it contains the eng.traineddata file. Your folder structure should look like this:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract\
+    ├── tessdata\
+    │   └── eng.traineddata
+    └── tesseract.exe
+2. Set TESSDATA_PREFIX properly
+The TESSDATA_PREFIX environment variable must point to the folder that contains the tessdata folder, not the tessdata folder itself. So, in your case, the path for TESSDATA_PREFIX should be:
+
+makefile
+Copy code
+D:\Personal Documents\CS\Tesseract
+Make sure to set it in your Python script like this:
+
+python
+Copy code
+import pytesseract
+import os
+
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable to the parent directory of tessdata
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+3. Use double backslashes or raw string notation
+Ensure that all file paths are written correctly. In Python, the backslash (\) is an escape character, so you should use double backslashes (\\) or raw string literals (r'...') to avoid issues with interpreting file paths.
+
+For example, make sure you're using:
+
+python
+Copy code
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+instead of:
+
+python
+Copy code
+os.environ['TESSDATA_PREFIX'] = 'D:\Personal Documents\CS\Tesseract'
+4. Verify the location of eng.traineddata
+Sometimes, Tesseract may not properly recognize the trained data file if it's not in the right location. Please double-check that eng.traineddata is indeed inside the tessdata folder.
+
+You can also try specifying the path to the language data explicitly using the lang argument in pytesseract.image_to_string():
+
+python
+Copy code
+text = pytesseract.image_to_string(image_path, lang='eng')
+5. Confirm the correct version of Tesseract
+Run this code to ensure Tesseract is installed and working correctly:
+
+python
+Copy code
+import pytesseract
+
+print(pytesseract.get_tesseract_version())  # This will print the Tesseract version
+This will confirm that the Tesseract executable is properly set up and working.
+
+6. Restart Python Environment
+Sometimes environment variables don't get updated in a running Python session. After making changes to TESSDATA_PREFIX, restart your Python script or IDE to ensure the changes take effect.
+
+Recap of Key Points:
+TESSDATA_PREFIX should point to the parent folder of tessdata (in this case, D:\Personal Documents\CS\Tesseract).
+Ensure that the tessdata folder contains the eng.traineddata file.
+Use raw string notation (r'...') for file paths to avoid backslash issues.
+Let me know if this helps or if the issue persists!
+
+
+
+
+
+
+You said:
+here is my code. read but do nothging. 
+import os
+import pytesseract
+from PIL import Image
+import pandas as pd
+
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable if needed
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+
+# Path to the folder containing the images
+image_folder = r'D:\Personal Documents\CS\images'  # Replace with your folder path on D drive
+
+# Initialize an empty list to hold the image names and extracted text
+data = []
+
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+ChatGPT said:
+ChatGPT
+Your code looks almost correct, but if it's reading images without doing anything (i.e., no errors are shown, but the output isn't being saved or processed as expected), here are a few things to check:
+
+1. Check if Images are Being Processed
+First, add a print statement inside the loop to check if the images are actually being read and processed. This will help confirm whether the loop is iterating through the images correctly.
+
+Update your loop like this:
+
+python
+Copy code
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        print(f"Processing {image_name}...")  # Add this line to check which image is being processed
+        
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+This will print the name of each image as it's being processed, so you can verify whether the loop is actually going through the files.
+
+2. Check if extracted_text is Empty
+If the images are being processed but the output is empty, it's possible that Tesseract isn't extracting any text. This might be because:
+
+The images might not contain clear, readable text.
+Tesseract might not be configured correctly (though the settings you provided earlier should be fine for general OCR).
+To check if the extracted_text is actually empty, you can print it before appending to data:
+
+python
+Copy code
+# Print the extracted text for each image
+print(f"Extracted text from {image_name}: {extracted_text}")
+If you see empty strings or a lot of None values in the printed output, this could indicate that Tesseract isn't able to extract meaningful text from the images.
+
+3. Check if pytesseract is Working Correctly
+You can run a simple test outside of the loop to verify if pytesseract is working at all. Try OCR on a single image to confirm the setup is working:
+
+python
+Copy code
+test_image_path = r'D:\Personal Documents\CS\images\captcha1.png'  # Replace with a valid image
+test_img = Image.open(test_image_path)
+test_text = pytesseract.image_to_string(test_img)
+print(f"Test extracted text: {test_text}")
+If this doesn't produce any text, it suggests that Tesseract is still not properly configured or the images aren't suitable for OCR.
+
+4. Save to Excel
+If images are being processed and text is extracted but the issue is with saving to Excel, double-check that pandas is correctly installed and the to_excel() method is functioning. Also, ensure you have the necessary Excel writer installed (openpyxl or xlsxwriter).
+
+To check if it's installed, run:
+
+bash
+Copy code
+pip install openpyxl
+Then, confirm the to_excel() part of your code:
+
+python
+Copy code
+# Ensure that DataFrame is correctly formed
+print(df.head())  # Print the first few rows of the DataFrame to see if data is correct
+
+# Save to Excel file
+df.to_excel(excel_output, index=False)
+print(f"Data has been saved to {excel_output}")
+This will help you check if the DataFrame is created correctly before saving it to Excel.
+
+Recap:
+Add print statements to verify image processing.
+Check if extracted_text is empty.
+Test pytesseract with a single image to ensure it's working.
+Ensure pandas and openpyxl are installed for Excel export.
+Let me know if any of these steps resolve the issue or if you're seeing any specific errors!
+
+
+
+
+
+
+You said:
+i have png file in the folder
+ChatGPT said:
+ChatGPT
+Thanks for confirming that you have PNG files in the folder. Let's go step by step to ensure everything works properly:
+
+1. Verify Images Are Being Processed
+We want to make sure your code is correctly processing the PNG images. Try adding a print statement inside the loop to check which images are being read:
+
+python
+Copy code
+# Loop through all images in the folder (assuming all files in the folder are images)
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    # Check if the file is an image (optional check based on file extension)
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        print(f"Processing {image_name}...")  # Print image name for debugging
+        
+        try:
+            # Open the image
+            img = Image.open(image_path)
+            
+            # Perform OCR on the image to extract text
+            extracted_text = pytesseract.image_to_string(img)
+            
+            # Print extracted text for debugging
+            print(f"Extracted text from {image_name}: {extracted_text}")
+            
+            # Append the result (image name and extracted text) to the data list
+            data.append([image_name, extracted_text])
+        except Exception as e:
+            # If there's an error, log it
+            print(f"Error processing {image_name}: {e}")
+2. Confirm Tesseract Configuration
+Make sure that Tesseract is properly configured. Double-check the paths you've set:
+
+python
+Copy code
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Set the TESSDATA_PREFIX environment variable
+os.environ['TESSDATA_PREFIX'] = r'D:\Personal Documents\CS\Tesseract'
+Also, confirm that the Tesseract eng.traineddata file exists inside the tessdata folder.
+
+3. Test Tesseract with One Image
+Before looping through all the images, test if Tesseract is working with just one image:
+
+python
+Copy code
+test_image_path = r'D:\Personal Documents\CS\images\captcha1.png'  # Replace with the actual path of a PNG file
+test_img = Image.open(test_image_path)
+test_text = pytesseract.image_to_string(test_img)
+print(f"Test extracted text: {test_text}")
+This will help ensure that Tesseract is correctly configured and able to read the PNG file.
+
+4. Check Image Quality
+If Tesseract is not able to extract text from the image, it could be due to the quality of the image. Ensure the images have clear, readable text. If the text is blurry, noisy, or distorted, Tesseract may not be able to recognize it.
+
+You can try preprocessing the image (e.g., converting to grayscale, thresholding, etc.) before passing it to Tesseract:
+
+python
+Copy code
+# Preprocess the image before OCR (convert to grayscale and threshold)
+img = img.convert('L')  # Convert to grayscale
+img = img.point(lambda x: 0 if x < 140 else 255)  # Simple thresholding
+
+# Perform OCR on the processed image
+extracted_text = pytesseract.image_to_string(img)
+5. Ensure Data is Being Saved to Excel
+After processing the images, make sure that your data is being saved to Excel correctly:
+
+python
+Copy code
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Extracted Text'])
+
+# Print the first few rows to check if data is correct
+print(df.head())
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Conclusion
+Add debugging prints to ensure images are being processed.
+Test Tesseract on a single image.
+Preprocess images if necessary.
+Save the extracted data to Excel.
+Let me know if any of these steps help resolve the issue, or if you're still encountering problems!
+
+
+
+
+
+
+You said:
+is there any way to know if pytressact properly installed in that folder or not?
+ChatGPT said:
+ChatGPT
+Yes, you can check if pytesseract is properly installed and whether it's properly configured to work with the Tesseract executable in your specific folder. Here are a few steps you can follow to verify the installation and configuration:
+
+1. Check Pytesseract Installation
+First, verify that pytesseract is correctly installed in your Python environment. Run the following code:
+
+python
+Copy code
+import pytesseract
+
+# Check pytesseract version
+print(pytesseract.get_tesseract_version())
+If pytesseract is installed correctly, this will print the Tesseract version (e.g., tesseract 5.x.x). If there’s an issue, it will raise an error.
+
+2. Check Tesseract Configuration
+To ensure that pytesseract is pointing to the correct Tesseract executable, you can test the configuration with the following code:
+
+python
+Copy code
+import pytesseract
+
+# Set the path to your Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Test if pytesseract can call Tesseract
+try:
+    # Run a test command to get the Tesseract version
+    version_output = pytesseract.get_tesseract_version()
+    print(f"Tesseract version: {version_output}")
+except Exception as e:
+    print(f"Error: {e}")
+If pytesseract is configured correctly, this will print the version of Tesseract that is installed. If there’s an issue (e.g., the path to the executable is wrong), you’ll get an error message.
+
+3. Check Tesseract's Language Data Directory
+The error you encountered previously mentions an issue with loading the eng.traineddata file. To check if the language data is properly configured:
+
+Ensure the tessdata folder exists in the path you provided (D:\Personal Documents\CS\Tesseract\tessdata).
+Ensure the eng.traineddata file is inside the tessdata folder.
+You can verify this with:
+
+python
+Copy code
+import os
+
+tessdata_path = r'D:\Personal Documents\CS\Tesseract\tessdata'
+if os.path.exists(tessdata_path):
+    print("TESSDATA folder exists.")
+    if os.path.exists(os.path.join(tessdata_path, 'eng.traineddata')):
+        print("eng.traineddata file found.")
+    else:
+        print("eng.traineddata file is missing.")
+else:
+    print("TESSDATA folder is missing.")
+4. Test OCR with a Sample Image
+Once you’ve confirmed that Tesseract is installed correctly and pytesseract is configured to use it, you can test Tesseract OCR on a sample image (make sure the image exists):
+
+python
+Copy code
+from PIL import Image
+import pytesseract
+
+# Set the path to your Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Test with a sample image (make sure the image exists at the given path)
+img_path = r'D:\Personal Documents\CS\images\sample_image.png'  # Replace with your image path
+try:
+    img = Image.open(img_path)
+    text = pytesseract.image_to_string(img)
+    print(f"Extracted text: {text}")
+except Exception as e:
+    print(f"Error: {e}")
+If Tesseract is installed and configured correctly, this should print the text extracted from the image. If there’s an issue, the error message will give you clues.
+
+Summary
+pytesseract.get_tesseract_version() will confirm if pytesseract is properly installed.
+pytesseract.pytesseract.tesseract_cmd should point to the correct executable location.
+Verify that the tessdata folder exists and contains eng.traineddata.
+Test with a sample image to ensure OCR works properly.
+Let me know if you need further help!
+
+
+
+
+
+
+You said:
+PS D:\Personal Documents\CS> python
+Python 3.9.9 (tags/v3.9.9:ccb0e6a, Nov 15 2021, 18:08:50) [MSC v.1929 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pytesseract
+>>> 
+>>> # Check pytesseract version
+>>> print(pytesseract.get_tesseract_version())
+Traceback (most recent call last):
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\site-packages\pytesseract\pytesseract.py", line 451, in get_tesseract_version  
+    output = subprocess.check_output(
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 424, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 505, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 1420, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\site-packages\pytesseract\pytesseract.py", line 163, in wrapper
+    wrapper._result = func(*args, **kwargs)
+  File "C:\Users\BINPAT\AppData\Local\Programs\Python\Python39\lib\site-packages\pytesseract\pytesseract.py", line 458, in get_tesseract_version  
+    raise TesseractNotFoundError()
+pytesseract.pytesseract.TesseractNotFoundError: tesseract is not installed or it's not in your PATH. See README file for more information.        
+>>>
+ChatGPT said:
+ChatGPT
+The error you're seeing indicates that pytesseract cannot find the Tesseract executable. This is likely because the Tesseract executable path is not properly set, or the executable is not accessible in the system’s environment PATH.
+
+Steps to Fix the Issue
+Ensure the Tesseract Executable Path is Correct You mentioned installing Tesseract in D:\Personal Documents\CS\Tesseract\. Ensure that the executable is located at D:\Personal Documents\CS\Tesseract\tesseract.exe.
+
+Set the Tesseract Path in Your Python Script In your Python script, make sure you are explicitly setting the correct path to the Tesseract executable using:
+
+python
+Copy code
+import pytesseract
+
+# Set the path to your Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+Check if Tesseract is Available in Your PATH If you still want to avoid hardcoding the path every time, you can add the directory containing tesseract.exe to your system’s PATH environment variable.
+
+Here’s how you can add Tesseract to the PATH:
+
+Step 1: Right-click on This PC (or Computer) and select Properties.
+Step 2: Click on Advanced system settings on the left.
+Step 3: In the System Properties window, click on the Environment Variables button.
+Step 4: In the System Variables section, scroll down and select Path, then click Edit.
+Step 5: In the Edit Environment Variable window, click New and add the directory path where tesseract.exe is located (D:\Personal Documents\CS\Tesseract\).
+Step 6: Click OK on all windows to save the changes.
+After this, open a new terminal window (to make sure it picks up the new PATH) and try running the script again.
+
+Test with a Simple Command After setting the path, you can test if Tesseract works from the command line:
+
+Open a command prompt and type:
+
+bash
+Copy code
+D:\Personal Documents\CS\Tesseract\tesseract.exe --version
+This should return the Tesseract version information. If it doesn't, there may be an issue with the installation.
+
+Conclusion
+The error occurs because the Tesseract executable cannot be found. Ensure that:
+
+You’ve correctly set pytesseract.pytesseract.tesseract_cmd to the path of the executable.
+Optionally, add Tesseract's installation folder to your system’s PATH.
+Let me know if you need further assistance!
+
+
+
+
+
+
+You said:
+D:\Personal Documents\CS>Tesseract\tesseract.exe --version
+tesseract v5.4.0.20240606
+ leptonica-1.84.1
+  libgif 5.2.1 : libjpeg 8d (libjpeg-turbo 3.0.1) : libpng 1.6.43 : libtiff 4.6.0 : zlib 1.3 : libwebp 1.4.0 : libopenjp2 2.5.2
+ Found AVX512BW
+ Found AVX512F
+ Found AVX512VNNI
+ Found AVX2
+ Found AVX
+ Found FMA
+ Found SSE4.1
+ Found libarchive 3.7.4 zlib/1.3.1 liblzma/5.6.1 bz2lib/1.0.8 liblz4/1.9.4 libzstd/1.5.6
+ChatGPT said:
+ChatGPT
+The output confirms that Tesseract is installed correctly and functioning as expected. Since Tesseract is working via the command line, the issue with pytesseract not finding Tesseract likely stems from the environment variable or path configuration within your Python script.
+
+Double Check Python Script Configuration
+Make sure the path to Tesseract in your Python script is explicitly defined and correct:
+
+python
+Copy code
+import pytesseract
+
+# Set the path to your Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+If that is already in place and you are still encountering issues, try the following steps:
+
+Additional Checks
+Restart the Python environment: After making changes to your environment or script, restart your Python environment (Python shell, Jupyter notebook, etc.) to ensure the changes take effect.
+
+Check for correct Python environment: Sometimes, Python might be running in a different environment where Tesseract isn’t properly configured. Ensure that you are running the script in the environment where Tesseract is installed.
+
+Test with a minimal script: To isolate the issue, try running the following simple test script:
+
+python
+Copy code
+import pytesseract
+
+# Set the path to your Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+try:
+    # Test the pytesseract command
+    print(pytesseract.image_to_string(r"D:\Personal Documents\CS\images\your_image.png"))
+except Exception as e:
+    print(f"Error: {e}")
+Replace "your_image.png" with an actual image from your folder.
+
+If the error persists
+Verify that tesseract.exe is located at D:\Personal Documents\CS\Tesseract\tesseract.exe.
+Check if there’s any issue with file or folder permissions preventing access to tesseract.exe.
+Let me know if this resolves the issue or if further troubleshooting is needed!
+
+
+
+
+
+
+You said:
+Error: (1, 'Error, cannot read input file D:\\Personal Documents\\CS\\images\\your_image.png: No such file or directory Error during processing.')
+ChatGPT said:
+ChatGPT
+The error you're seeing indicates that the file path D:\\Personal Documents\\CS\\images\\your_image.png does not exist, or there may be an issue with the path formatting.
+
+Steps to resolve:
+Verify the File Path:
+
+Make sure that the file your_image.png actually exists in the D:\Personal Documents\CS\images directory. Double-check the file name and extension for any typos or discrepancies.
+If the file exists in a subfolder within images, include the subfolder in the path.
+Check for Backslash Issues:
+
+In Windows paths, backslashes (\) can sometimes be interpreted as escape characters in strings. To avoid this, make sure you're using raw string literals (r"") or double backslashes (\\) in your paths. This appears correct in your current code, so just double-check that the path is exact.
+Test with an Actual Image Path:
+
+Instead of using your_image.png, replace it with a real image file in the images folder. For example, use:
+python
+Copy code
+print(pytesseract.image_to_string(r"D:\Personal Documents\CS\images\captcha01.png"))
+Ensure the image file is present in the images folder and that the path matches exactly.
+
+List Files in the Folder:
+
+To ensure the images are in the folder and to debug further, list the files in the images folder using this code:
+python
+Copy code
+import os
+
+image_folder = r'D:\Personal Documents\CS\images'
+files = os.listdir(image_folder)
+print(files)
+This will display the filenames in the folder and help you confirm if the image files are present and if there are any unexpected issues with file naming.
+
+Once you've confirmed the correct file path and that the file exists, you should be able to extract text using Tesseract. Let me know if that works!
+
+
+
+
+
+
+You said:
+['captcha1.png', 'captcha10.png', 'captcha100.png', 'captcha11.png', 'captcha12.png', 'captcha13.png', 'captcha14.png', 'captcha15.png', 'captcha16.png', 'captcha17.png', 'captcha18.png', 'captcha19.png', 'captcha2.png', 'captcha20.png', 'captcha21.png', 'captcha22.png', 'captcha23.png', 'captcha24.png', 'captcha25.png', 'captcha26.png', 'captcha27.png', 'captcha28.png', 'captcha29.png', 'captcha3.png', 'captcha30.png', 'captcha31.png', 'captcha32.png', 'captcha33.png', 'captcha34.png', 'captcha35.png', 'captcha36.png', 'captcha37.png', 'captcha38.png', 'captcha39.png', 'captcha4.png', 'captcha40.png', 'captcha41.png', 'captcha42.png', 'captcha43.png', 'captcha44.png', 'captcha45.png', 'captcha46.png', 'captcha47.png', 'captcha48.png', 'captcha49.png', 'captcha5.png', 'captcha50.png', 'captcha51.png', 'captcha52.png', 'captcha53.png', 'captcha54.png', 'captcha55.png', 'captcha56.png', 'captcha57.png', 'captcha58.png', 'captcha59.png', 'captcha6.png', 'captcha60.png', 'captcha61.png', 'captcha62.png', 'captcha63.png', 'captcha64.png', 'captcha65.png', 'captcha66.png', 'captcha67.png', 'captcha68.png', 'captcha69.png', 'captcha7.png', 'captcha70.png', 'captcha71.png', 'captcha72.png', 'captcha73.png', 'captcha74.png', 'captcha75.png', 'captcha76.png', 'captcha77.png', 'captcha78.png', 'captcha79.png', 'captcha8.png', 'captcha80.png', 'captcha81.png', 'captcha82.png', 'captcha83.png', 'captcha84.png', 'captcha85.png', 'captcha86.png', 'captcha87.png', 'captcha88.png', 'captcha89.png', 'captcha9.png', 'captcha90.png', 'captcha91.png', 'captcha92.png', 'captcha93.png', 'captcha94.png', 'captcha95.png', 'captcha96.png', 'captcha97.png', 'captcha98.png', 'captcha99.png']
+ChatGPT said:
+ChatGPT
+It looks like the images are present in the folder, and the paths are correct. Since you're still getting an error related to "cannot read input file," let's try the following steps to troubleshoot further:
+
+1. Check for Path Formatting
+Even though the folder and filenames appear correct, sometimes issues arise with spaces in the path (e.g., "D:\Personal Documents"). While Python should be able to handle this, you can confirm by using double backslashes (\\) or a raw string (r"") for the path.
+
+For example:
+
+python
+Copy code
+image_path = r"D:\Personal Documents\CS\images\captcha1.png"
+Or use double backslashes:
+
+python
+Copy code
+image_path = "D:\\Personal Documents\\CS\\images\\captcha1.png"
+2. Test the Image Path Directly
+Try opening the image using the PIL library to ensure there is no issue with loading it. Here's a test for the first image:
+
+python
+Copy code
+from PIL import Image
+
+image_path = r"D:\Personal Documents\CS\images\captcha1.png"
+try:
+    img = Image.open(image_path)
+    img.show()  # This will open the image in the default viewer to check
+except Exception as e:
+    print(f"Error opening image: {e}")
+This will help confirm if the image is accessible.
+
+3. Test OCR Directly
+Instead of using the whole loop, let's try running the OCR directly on one image to see if Tesseract can read it properly. Here's how you can do it:
+
+python
+Copy code
+from PIL import Image
+import pytesseract
+
+# Specify the image path and Tesseract command
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+image_path = r"D:\Personal Documents\CS\images\captcha1.png"
+
+try:
+    img = Image.open(image_path)
+    extracted_text = pytesseract.image_to_string(img)
+    print(extracted_text)
+except Exception as e:
+    print(f"Error processing the image: {e}")
+This will give you a clearer indication of whether Tesseract is working or if there's an issue with the image itself.
+
+4. Verify Permissions
+Ensure that your Python script has permission to access the D:\Personal Documents\CS\images folder. Sometimes, permission issues might cause files to be inaccessible. You can check by running the script as Administrator or ensuring that the folder is not restricted.
+
+Let me know if any of these suggestions help or if you continue facing issues!
+
+
+
+
+
+
+You said:
+got this: blabk
+ChatGPT said:
+ChatGPT
+It seems like Tesseract was able to run without errors, but it returned blank text. There are several possible reasons for this:
+
+1. Image Quality
+The image might not have enough contrast, or the text might be too distorted for Tesseract to recognize correctly. Some common issues include:
+
+Low resolution: The text may be too small for Tesseract to extract accurately.
+Noise or distortion: Background noise or overlapping colors may make it difficult for Tesseract to differentiate text from the background.
+Font or style: Unusual fonts or distorted characters may also cause recognition failures.
+What to try:
+
+Ensure that the image resolution is at least 300 DPI.
+Preprocess the image to improve contrast, remove noise, or convert it to grayscale for better recognition.
+Here's how you can apply basic preprocessing to improve the chances of Tesseract successfully reading the text:
+
+python
+Copy code
+from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+image_path = r"D:\Personal Documents\CS\images\captcha1.png"
+
+try:
+    # Open the image
+    img = Image.open(image_path)
+
+    # Convert the image to grayscale
+    img = img.convert("L")
+
+    # Enhance the image (increase contrast)
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(2)
+
+    # Apply a filter to reduce noise
+    img = img.filter(ImageFilter.MedianFilter())
+
+    # Perform OCR on the preprocessed image
+    extracted_text = pytesseract.image_to_string(img)
+
+    print(extracted_text)
+
+except Exception as e:
+    print(f"Error processing the image: {e}")
+2. Tesseract Configuration
+Tesseract may require specific configuration settings depending on the type of text. For example, if the image contains distorted text, or the CAPTCHA includes characters that are harder to read, you might need to pass custom settings to Tesseract to improve accuracy.
+
+Example:
+
+python
+Copy code
+extracted_text = pytesseract.image_to_string(img, config='--psm 6')
+--psm 6 is a page segmentation mode that tells Tesseract to treat the image as a block of text (you can try different modes to see which one works best for your images). Here are some options:
+
+--psm 6: Assume a single uniform block of text.
+--psm 11: Sparse text with OSD (Orientation and Script Detection).
+--psm 3: Fully automatic page segmentation.
+3. Check for Empty or Unreadable Text
+It's also possible that the image is too complex for Tesseract to extract any meaningful text. In this case, you can visually inspect the image to confirm that it contains text that should be recognizable by OCR. You may want to manually preprocess the image or consider using a more specialized OCR solution for CAPTCHA-like images (some CAPTCHAs are intentionally designed to confuse OCR tools).
+
+4. Use the image_to_data Function
+This function provides more detailed output, including the position and confidence of each word detected, which can help debug why the image is returning blank text.
+
+python
+Copy code
+extracted_data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+print(extracted_data)
+Next Steps:
+Try preprocessing the image using the grayscale, contrast enhancement, and noise reduction methods.
+Experiment with Tesseract's page segmentation modes (--psm).
+Check if manually improving the image (e.g., increasing contrast or removing noise) yields better results.
+Let me know how it goes!
+
+
+
+
+
+
+You said:
+both worked: 
+from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+image_path = r"D:\Personal Documents\CS\images\captcha11.png"
+
+try:
+    # Open the image
+    img = Image.open(image_path)
+
+    # Convert the image to grayscale
+    img = img.convert("L")
+
+    # Enhance the image (increase contrast)
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(2)
+
+    # Apply a filter to reduce noise
+    img = img.filter(ImageFilter.MedianFilter())
+
+    # Perform OCR on the preprocessed image
+    extracted_text = pytesseract.image_to_string(img)
+
+    extracted_data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    print(extracted_data)
+
+
+    print(extracted_text)
+
+except Exception as e:
+    print(f"Error processing the image: {e}")
+
+is there any other way to read as well? but it has to be more efficient and better than this two
+ChatGPT said:
+ChatGPT
+Great to hear that the preprocessing steps improved your results! While Tesseract is a powerful OCR tool, there are other methods you can explore to enhance its performance, or even alternative approaches that might suit your needs for CAPTCHA-like text more effectively.
+
+Additional Improvements or Alternative OCR Approaches:
+1. Tesseract with Custom Configurations and Tuning
+You can optimize Tesseract's accuracy further by fine-tuning the parameters. Here are some strategies to improve OCR quality:
+
+Custom OCR Configurations: Fine-tuning Tesseract's settings can help with complex images. For example, setting the OCR Engine Mode (--oem) or adjusting the Page Segmentation Mode (--psm) could yield better results.
+
+Example configuration:
+
+python
+Copy code
+extracted_text = pytesseract.image_to_string(
+    img, 
+    config='--psm 6 --oem 3'
+)
+--oem 3 enables the default OCR engine mode, which uses both legacy and LSTM-based methods.
+--psm 6 tells Tesseract to assume a single block of text.
+Tesseract with --user-patterns for custom characters: If the CAPTCHA uses custom characters or symbols, you can train Tesseract on your specific data or feed it custom patterns.
+
+Improve Preprocessing: Use other filters or image transformations:
+
+Binarization: Convert the image to black and white using a threshold value.
+Adaptive Thresholding: Instead of applying a single threshold value, adaptive thresholding can be more effective when the image has varying lighting conditions.
+python
+Copy code
+img = img.convert("L")
+img = img.point(lambda p: p > 128 and 255)  # Binarization
+Dilation and Erosion: These are morphological operations that can help clean up the image before OCR.
+2. Use Deep Learning-Based OCR (More Accurate)
+While Tesseract is great for general use, modern deep learning-based approaches can often outperform it, especially when dealing with CAPTCHA-like images.
+
+EasyOCR: A more modern OCR library that uses deep learning. It's often more accurate than Tesseract with complex images.
+
+Installation:
+
+bash
+Copy code
+pip install easyocr
+Example usage:
+
+python
+Copy code
+import easyocr
+
+reader = easyocr.Reader(['en'])
+result = reader.readtext(image_path)
+
+for detection in result:
+    print(detection)
+This method often works better with noisy or distorted text, like CAPTCHAs.
+
+OCR with Convolutional Neural Networks (CNNs): You can train a custom deep learning model for OCR on your specific CAPTCHA images. This requires more effort but can give you significant control over accuracy.
+
+Use libraries like TensorFlow, Keras, or PyTorch to create a custom CNN.
+Pretrained models, such as CRNN (Convolutional Recurrent Neural Network) for OCR, have been shown to be highly effective on complex text recognition tasks.
+3. Use Other OCR Tools
+Several alternative OCR tools can be explored, each with its strengths:
+
+Google Vision OCR: Google's OCR tool is highly accurate and handles various image formats and complexities, including CAPTCHAs.
+
+Google Vision API is a paid service, but it comes with high accuracy and is easy to integrate.
+Microsoft Azure OCR: Another cloud-based OCR solution. Similar to Google Vision, it offers powerful OCR services that are easy to use via API.
+
+OCR.space API: A free (with limits) API service that provides OCR capabilities.
+
+4. Post-Processing of OCR Results
+After extracting text, you can further improve the results using regular expressions to clean up the output or filter out unwanted noise.
+
+For example:
+
+python
+Copy code
+import re
+extracted_text = re.sub(r'[^a-zA-Z0-9]', '', extracted_text)  # Remove non-alphanumeric characters
+Or, if you're dealing with CAPTCHAs, you could use a character set-based regex to filter for certain patterns.
+
+5. Custom CAPTCHA Solving Models
+If you're working with specific types of CAPTCHA images (e.g., distorted, overlapping text), training a custom model with labeled CAPTCHA data might give you the best results. Tools like Keras/TensorFlow or PyTorch can be used to train a model that is specialized for this task.
+
+You can use image augmentation (rotations, noise, scaling) to generate more training data if needed.
+
+Conclusion
+For improved accuracy beyond what Tesseract offers, you can explore:
+
+Using deep learning-based OCR tools like EasyOCR or custom CNN models.
+Applying more advanced preprocessing steps (adaptive thresholding, morphological operations).
+Using cloud-based OCR services (Google Vision, Microsoft Azure) for higher-quality recognition.
+Train a custom model specifically for your CAPTCHA images.
+Each of these methods has trade-offs in terms of ease of use, accuracy, and complexity. If you’re dealing with CAPTCHA images specifically, EasyOCR or custom deep learning models could be the best approach for a more robust solution.
+
+
+
+
+
+
+You said:
+ok for now lets go with this two, want to make an excel file that will contain image name , output 1 and output 2. (only text from output 1. not  the entire list)
+ChatGPT said:
+ChatGPT
+To save the extracted text (from Tesseract and EasyOCR) into an Excel file with the image name, OCR result 1 (from Tesseract), and OCR result 2 (from EasyOCR), you can modify your script as follows:
+
+Use Tesseract for extracting the text (already done in your previous steps).
+Use EasyOCR to extract text from the same image.
+Save both results in the Excel file, alongside the image name.
+Here’s how to do it:
+
+Python Code:
+python
+Copy code
+import os
+import pytesseract
+import easyocr
+from PIL import Image, ImageEnhance, ImageFilter
+import pandas as pd
+
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])
+
+# Folder paths
+image_folder = r'D:\Personal Documents\CS\images'
+excel_output = 'extracted_texts.xlsx'
+
+# Initialize an empty list to hold the data
+data = []
+
+# Loop through all images in the folder
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+
+            # Preprocess the image for Tesseract (e.g., convert to grayscale, enhance contrast)
+            img_preprocessed = img.convert("L")
+            enhancer = ImageEnhance.Contrast(img_preprocessed)
+            img_preprocessed = enhancer.enhance(2)
+            img_preprocessed = img_preprocessed.filter(ImageFilter.MedianFilter())
+
+            # Perform OCR using Tesseract
+            tesseract_text = pytesseract.image_to_string(img_preprocessed)
+
+            # Perform OCR using EasyOCR
+            easyocr_results = reader.readtext(image_path)
+            easyocr_text = ' '.join([text[1] for text in easyocr_results])
+
+            # Append the image name, Tesseract text, and EasyOCR text to the data list
+            data.append([image_name, tesseract_text.strip(), easyocr_text.strip()])
+
+        except Exception as e:
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Output 1 (Tesseract)', 'Output 2 (EasyOCR)'])
+
+# Save the DataFrame to an Excel file
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Breakdown of the Code:
+Tesseract OCR: It reads the image using Tesseract after preprocessing (grayscale conversion, contrast enhancement, and noise filtering).
+EasyOCR: It processes the same image using EasyOCR and extracts the text.
+Saving Results: It stores the image name, Tesseract output, and EasyOCR output in a list and then creates a pandas DataFrame.
+Excel File: The DataFrame is saved to an Excel file with the specified columns: Image Name, Output 1 (Tesseract), and Output 2 (EasyOCR).
+Output:
+The generated Excel file will look something like this:
+
+Image Name	Output 1 (Tesseract)	Output 2 (EasyOCR)
+captcha1.png	text from Tesseract	text from EasyOCR
+captcha2.png	text from Tesseract	text from EasyOCR
+...	...	...
+Notes:
+If the image has multiple words, EasyOCR returns them in a list, so we join them with ' '.join(...) to create a single string for each result.
+The strip() function is used to remove leading or trailing whitespace from the OCR output.
+This should give you a well-structured Excel file with both OCR outputs for each image. Let me know if you need further adjustments!
+
+
+
+
+
+
+You said:
+have to install easyocr?
+ChatGPT said:
+ChatGPT
+Yes, you need to install EasyOCR if you want to use it in your project.
+
+To install EasyOCR, you can use pip, which is the Python package installer. Run the following command in your terminal or command prompt:
+
+bash
+Copy code
+pip install easyocr
+Once installed, you can import and use EasyOCR in your Python code as shown in the previous script.
+
+Let me know if you encounter any issues during installation!
+
+
+1/2
+
+You said:
+this code is running good. now i want to add regex. as the text will be between a-z, A-Z, 1-0. no special character or space will be considered. 
+ChatGPT said:
+ChatGPT
+To add regular expression (regex) filtering to your code, you can use the re module in Python. The idea is to extract only the alphanumeric characters (letters and numbers) from the OCR output.
+
+Here’s how you can modify the code to filter out anything that is not between a-z, A-Z, or 0-9:
+
+Step-by-Step:
+After extracting text using OCR, use the re.sub() function to remove anything that doesn't match your pattern.
+The pattern you will use is [^a-zA-Z0-9] to match and remove any character that is not a letter or digit.
+Updated Code with Regex:
+python
+Copy code
+import re
+from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
+import easyocr
+import pandas as pd
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])
+
+# Set the path to tesseract
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+image_folder = r'D:\Personal Documents\CS\images'  # Replace with your folder path
+data = []
+
+# Regex pattern to keep only alphanumeric characters
+regex_pattern = re.compile('[^a-zA-Z0-9]')
+
+# Loop through all images in the folder
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+    
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+
+            # Convert to grayscale for better OCR
+            img = img.convert("L")
+
+            # Enhance contrast
+            enhancer = ImageEnhance.Contrast(img)
+            img = enhancer.enhance(2)
+
+            # Apply a filter to reduce noise
+            img = img.filter(ImageFilter.MedianFilter())
+
+            # Perform OCR using Tesseract (Output 1)
+            extracted_text_tesseract = pytesseract.image_to_string(img)
+            
+            # Use regex to remove any non-alphanumeric characters
+            cleaned_text_tesseract = re.sub(regex_pattern, '', extracted_text_tesseract)
+
+            # Perform OCR using EasyOCR (Output 2)
+            extracted_text_easyocr = reader.readtext(image_path, detail=0)
+            extracted_text_easyocr = ' '.join(extracted_text_easyocr)
+            
+            # Use regex to clean EasyOCR output
+            cleaned_text_easyocr = re.sub(regex_pattern, '', extracted_text_easyocr)
+
+            # Append results to data list
+            data.append([image_name, cleaned_text_tesseract, cleaned_text_easyocr])
+
+        except Exception as e:
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Output 1 (Tesseract)', 'Output 2 (EasyOCR)'])
+
+# Save the DataFrame to an Excel file
+excel_output = 'extracted_texts_with_regex.xlsx'
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")
+Explanation:
+Regex: We created a regex_pattern that matches any character that is not between a-z, A-Z, or 0-9, and then replaced those characters with an empty string using re.sub().
+OCR Processing: After obtaining the OCR text, we clean it using the regex to ensure that only alphanumeric characters are kept.
+Output:
+The result will be an Excel file (extracted_texts_with_regex.xlsx) with three columns:
+
+Image Name: The name of the image.
+Output 1 (Tesseract): OCR output from Tesseract, cleaned with regex.
+Output 2 (EasyOCR): OCR output from EasyOCR, cleaned with regex.
+This will ensure you only get the alphanumeric content without special characters or spaces.
+
+Let me know if you need any further adjustments!

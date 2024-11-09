@@ -1,0 +1,54 @@
+import os
+import pytesseract
+import easyocr
+from PIL import Image, ImageEnhance, ImageFilter
+import pandas as pd
+
+# Set the correct path to the tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'D:\Personal Documents\CS\Tesseract\tesseract.exe'
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])
+
+# Folder paths
+image_folder = r'D:\Personal Documents\CS\images'
+excel_output = 'extracted_texts.xlsx'
+
+# Initialize an empty list to hold the data
+data = []
+
+# Loop through all images in the folder
+for image_name in os.listdir(image_folder):
+    image_path = os.path.join(image_folder, image_name)
+
+    if image_name.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'bmp')):
+        try:
+            # Open the image
+            img = Image.open(image_path)
+
+            # Preprocess the image for Tesseract (e.g., convert to grayscale, enhance contrast)
+            img_preprocessed = img.convert("L")
+            enhancer = ImageEnhance.Contrast(img_preprocessed)
+            img_preprocessed = enhancer.enhance(2)
+            img_preprocessed = img_preprocessed.filter(ImageFilter.MedianFilter())
+
+            # Perform OCR using Tesseract
+            tesseract_text = pytesseract.image_to_string(img_preprocessed)
+
+            # Perform OCR using EasyOCR
+            easyocr_results = reader.readtext(image_path)
+            easyocr_text = ' '.join([text[1] for text in easyocr_results])
+
+            # Append the image name, Tesseract text, and EasyOCR text to the data list
+            data.append([image_name, tesseract_text.strip(), easyocr_text.strip()])
+
+        except Exception as e:
+            print(f"Error processing {image_name}: {e}")
+
+# Create a pandas DataFrame from the extracted data
+df = pd.DataFrame(data, columns=['Image Name', 'Output 1 (Tesseract)', 'Output 2 (EasyOCR)'])
+
+# Save the DataFrame to an Excel file
+df.to_excel(excel_output, index=False)
+
+print(f"Data has been saved to {excel_output}")

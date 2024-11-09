@@ -1,0 +1,884 @@
+# Import Modules 
+
+import json
+import os
+import pandas as pd
+import subprocess
+import sys
+import re
+from openpyxl import load_workbook
+import time
+import tempfile
+import shutil
+import logging
+import datetime
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from selenium import webdriver
+import chromedriver_autoinstaller
+from selenium.webdriver.chrome.options import Options
+import shutil
+import urllib.request
+from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from dateutil.relativedelta import relativedelta
+from bs4 import BeautifulSoup
+from selenium.common.exceptions import NoSuchElementException
+from urllib.parse import urlparse
+import requests
+from selenium.common.exceptions import NoAlertPresentException
+from selenium.webdriver.support.ui import Select
+import xlsxwriter
+import math
+import pdfplumber
+import platform
+import socket
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import base64
+import win32api
+import pytesseract
+from PIL import Image
+import cv2
+
+
+
+from Program_Files.scraping_library import check_internet_connection
+from Program_Files.scraping_library import get_folder_size_in_mb
+from Program_Files.scraping_library import delete_empty_folders
+from Program_Files.scraping_library import delete_folder
+from Program_Files.scraping_library import packaging
+from Program_Files.scraping_library import create_folder_if_not_exists
+from Program_Files.scraping_library import is_android_device_connected
+from Program_Files.scraping_library import send_email
+from Program_Files.scraping_library import countdown_timer
+from Program_Files.scraping_library import delete_xlsx_files
+from Program_Files.scraping_library import no_adb_mail
+from Program_Files.scraping_library import skip_zones
+from Program_Files.scraping_library import get_current_device_serial
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>># Global Variables
+# Determine script directory
+script_path = os.path.abspath(sys.argv[0])  # Absolute path of the executable
+script_dir_path = os.path.dirname(script_path)
+# print(script_dir_path)
+# # Remove the file name from the directory path
+# folder_path = os.path.split(script_dir_path)[0]  # This removes the last part (file name) from the path
+# print(folder_path)
+
+program_files_dir = os.path.join(script_dir_path, "Program_Files")
+input_files_dir = os.path.join(script_dir_path, "Input_Files")
+# output_files_dir = os.path.join(script_dir_path, "Output_Files")
+# Join the script path with the source path
+temp_dir_path = os.path.join(program_files_dir, "temp_dir")
+# print(temp_dir_path)
+
+# email_file_path = os.path.join(input_files_dir, "emailid_list.txt")
+# print(email_file_path)
+sheet_names_file_path = os.path.join(input_files_dir,"sheet_names.txt")
+# print(sheet_names_file_path)
+script_log_file_path = os.path.join(program_files_dir, "script_log.log" )
+# print(script_log_file_path)
+config_file_path = os.path.join(program_files_dir, "Configration.json")
+# print(config_file_path)
+org_file_path = os.path.join(program_files_dir, "Organization_list.txt")
+# print(org_file_path)
+ireps_data = os.path.join(program_files_dir, "ireps_data.pkl")
+# print(ireps_data)
+file_to_save_path = os.path.join(input_files_dir, "send_mail_log.txt")
+# print(file_to_save_path)
+tender_pdf_file_path = os.path.join(temp_dir_path, "tender.pdf")
+# print(tender_pdf_file_path)
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>># Global Variables
+
+# List to store the organization
+organizations = []
+
+# Read data from the text file
+with open(org_file_path, 'r') as file:
+    lines = file.readlines()
+
+for line in lines:
+    # Check if the line starts with '#' and ignore those lines
+    if not line.startswith('#'):
+        parts = line.strip().split(': ')
+        if len(parts) == 2:
+            number = parts[0]
+            name = parts[1]
+            organizations.append((number, name))
+
+
+
+
+
+
+# Load the JSON data from the file
+with open(config_file_path, 'r') as file:
+    data = json.load(file)
+# Extract values from the JSON data
+# adb_value = data['adb_device']
+# mobile_no = data.get('mobile_no')
+dump_location = data.get('dump_location')
+# excel_file_path = data.get('excel_file_path')
+# otp_file_location = data['otp_file_location']
+sender_email_id = data['sender_email_id']
+sender_email_password = data['sender_email_password']
+notification_emailids = data['notification_emailids']
+# print(notification_emailids)
+# time.sleep(1000)
+
+
+# Edit the value of "signal_ireps"
+data["signal_ireps"] = "FALSE"
+data["signal_datelog"] = "FALSE"
+# Write the modified data back to the file
+with open(config_file_path, 'w') as file:
+    json.dump(data, file, indent=4) 
+
+#----------------------------------------------------------------------------------------------- Extension to global variable
+
+error_data = {}
+
+# def save_error(statename, message):
+#   """Saves the current exception to a text file.
+
+#   Args:
+#     log_file: The name of the text file to save the exception to.
+#   """
+
+#   exception_type, exception_value, traceback = sys.exc_info()
+
+#   with open(log_file, "a") as f:
+#     current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     f.write("\n")
+#     f.write(f"{current_datetime}")
+#     f.write(str(exception_type))
+
+#     f.write(" in ")
+#     f.write(statename)
+#     f.write(str(message))
+#     # f.write("\n")
+#     # f.write(str(exception_value))
+#     # f.write(str(traceback))
+
+
+
+
+
+
+
+
+
+class Extr:
+    def __init__(self, name, URL, temp_dir_path):
+        chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
+                                # and if it doesn't exist, download it automatically,
+                                # then add chromedriver to path
+        timeout = 10
+        no_of_tender_scraped = 0
+        try:
+
+            options = Options()
+            options.add_argument("--disable-application-cache")  # Disable application cache
+            options.add_argument('--ignore-certificate-errors')
+            # options.add_argument("--headless")  
+            options.add_argument("--disable-gpu")  
+            options.add_argument("--log-level=3")
+            # # Set the download path
+            # options.add_experimental_option("prefs", {
+            #     "download.default_directory": initial_download,
+            #     "download.prompt_for_download": False,
+            #     "download.directory_upgrade": True,
+            #     "safebrowsing.enabled": True
+            #     })
+
+
+            capTextInput = ""
+            for attempt in range(1, 6):
+                print(f"\nAttempt {attempt}... For {name}")
+                while True:
+                    # Initialize the ChromeDriver
+                    driver = webdriver.Chrome(options=options)
+                    driver.set_page_load_timeout(600)  
+                    driver.implicitly_wait(10) 
+                    
+                    print(URL)
+                    
+                    # Opening the URL 
+                    # Set timeouts for page load and implicitly wait
+                    driver.set_page_load_timeout(120)  # Set page load timeout to 30 seconds
+                    driver.implicitly_wait(40)  # Implicitly wait for elements to be found
+
+                    try:
+                        # Navigate to a URL
+                        driver.get(URL)
+                    
+                    except TimeoutException as e:
+                        print(f"Navigate to a URL - Timeout Exception: {e}")
+                        # Handle the timeout exception here
+                    
+                    capImage = driver.find_element("xpath","//img[@id='captchaImage']")
+                    imgData = capImage.get_attribute('src')
+                    imgData = imgData[22:]
+                    imgData = imgData.replace('\\n', '')
+                    imgData = imgData.replace('\\r', '')
+                    imgData = imgData.replace('%0A', '')
+
+                    cap_folder_path = "Program_Files/CAP" 
+                    cap_file_name = '' +name+ '.png'  
+                    cap_file_path = os.path.join(cap_folder_path, cap_file_name)
+
+                    if not os.path.exists(cap_folder_path):
+                        os.makedirs(cap_folder_path)
+                    with open(cap_file_path, "wb") as fh:
+                        fh.write(base64.b64decode(imgData))
+                    
+                    win32api.SetFileAttributes(cap_folder_path, 2)
+
+                    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+                    
+                    image = Image.open(cap_file_path)
+
+                    if image.mode != 'RGBA':
+                        image = image.convert('RGBA')
+
+                    pixels = image.load()
+
+                    blue_min = (0, 0, 150)  
+                    blue_max = (50, 50, 255)  
+
+
+                    for x in range(image.width):
+                        for y in range(image.height):
+                            r, g, b, a = pixels[x, y]
+
+                            if blue_min[0] <= r <= blue_max[0] and \
+                                    blue_min[1] <= g <= blue_max[1] and \
+                                    blue_min[2] <= b <= blue_max[2]:
+                                pixels[x, y] = (r, g, b, 0)
+
+                    rgb_image = Image.new('RGB', image.size, (255, 255, 255))
+
+                    rgb_image.paste(image, (0, 0), mask=image)
+
+                    captcha_image_path_jpg = './Program_Files/CAP/' + name + '_output_image.jpg'
+
+                    rgb_image.save(captcha_image_path_jpg)
+
+                    image = cv2.imread(captcha_image_path_jpg)
+
+                    denoised_image = cv2.fastNlMeansDenoisingColored(image, None, 10, 10, 7, 21)
+
+                    gray_image = cv2.cvtColor(denoised_image, cv2.COLOR_BGR2GRAY)
+
+                    text = pytesseract.image_to_string(gray_image)
+
+                    extracted_text = text.strip()
+                    
+                    filtered_text = re.sub(r'[^A-Za-z0-9]', '', extracted_text)
+                    filtered_text = filtered_text.upper()
+
+                    if re.match(r'^[A-Z0-9]{6}$', filtered_text): 
+                        capTextInput = filtered_text
+                        break
+                    print("CAPTCHA mismatch trying again...")
+                    
+                print("CAPTCHA : Found /",capTextInput)
+                
+                try: 
+                    driver.execute_script("document.getElementById('captchaText').value='" + capTextInput + "'")
+                    driver.execute_script("document.getElementById('TenderType').value=1") # Open Tender
+                    driver.execute_script("document.getElementById('valueCriteria').value=4") # ECV
+                    driver.execute_script("document.getElementById(\"valueParameter\").value=3") # Greater Than
+                    driver.execute_script("document.getElementById('FromValue').value=99999999") # 9999 9999
+                    driver.find_element("xpath", "//*[@id='submit']").click()
+
+                except Exception as e:
+                    print(name, error_message) 
+                    print("An error occurred:", str(e))
+                
+                # Get the page source
+                page_source = driver.page_source
+
+                # Check if "No Tenders found." is present in the page source | 
+                if "No Tenders found." in page_source:
+                    print("No tenders found in the portal.\n")
+                    return None 
+
+                links = len(driver.find_elements("xpath", "//td/a[starts-with(@id,'DirectLink_0')]"))
+
+                
+                if links != 0:
+                    break  
+                print("No links: trying again... ", links)
+                
+            print(name, " Tenders Scraping ... ")
+            b = datetime.datetime.now()
+            fname = b.strftime("%d-%m-%Y %H_%M_%S")
+            folder_name = name + '_Tenders'
+            file_name = folder_name + '_' + fname + '.xlsx'
+            file_path = os.path.join(temp_dir_path, file_name)
+
+            if not os.path.exists(temp_dir_path):
+                os.makedirs(temp_dir_path)
+
+            workbook = xlsxwriter.Workbook(file_path)
+            worksheet1 = workbook.add_worksheet("ListOfTenders")
+
+            worksheet1.write(0, 0, "Organisation Chain")
+            worksheet1.write(0, 1, "Tender Reference Number")
+            worksheet1.write(0, 2, "Tender ID")
+            worksheet1.write(0, 3, "EMD Amount in Rs")
+            worksheet1.write(0, 4, "Title")
+            worksheet1.write(0, 5, "Work Description")
+            worksheet1.write(0, 6, "Tender Value in Rs")
+            worksheet1.write(0, 7, "Pre Bid Meeting Date")
+            worksheet1.write(0, 8, "Bid Submission End Date")
+            worksheet1.write(0, 9,"Published Date")
+            worksheet1.write(0, 10,"Tender Type")
+            worksheet1.write(0, 11,"Tender Category")
+            worksheet1.write(0, 12,"Tender Fee")
+            worksheet1.write(0, 13,"Location")
+            worksheet1.write(0, 14,"Period Of Work(Days)")
+            worksheet1.write(0, 15,"Document Download / Sale End Date")
+            worksheet1.write(0, 16,"URL")
+            worksheet1.write(0, 17,"GET")
+            
+            # print("Check point ")
+            # time.sleep(2000)
+            cnt = 0
+            while True:
+                for j in range(1, links + 1):
+                    print('\r' + "Tender  : " + str((cnt * 20) + j), end='')
+                    
+
+                    elements = driver.find_elements("xpath", "//a[starts-with(@id,'DirectLink_0')]")
+
+                    if j > len(elements):
+                        break
+                    try:
+
+                        elements[j - 1].click()
+                    except IndexError as e:
+                        error_message = "f An error occurred while heading to next page:"
+                        print(name, error_message)
+                        break
+
+                    # Organisation Chain
+                    try:
+                        orgChain = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, "//*[text()='Organisation Chain']/parent::*/following-sibling::td[1]")
+                            )
+                        )
+                        if orgChain is not None:
+                            orgChain_text = orgChain.get_attribute("innerText")
+                        else:
+                            orgChain_text = None
+
+                    except Exception as e:
+                        error_message = f" An error occurred while finding Organisation Chain. "
+                        print(name, error_message)
+                        orgChain_text = None
+                        # print(f"An error occurred. ")
+
+                    try:
+                        tenderRefNumber = driver.find_element("xpath", "//*[text()='Tender Reference Number']/parent::*/following-sibling::td[1]")
+                        if tenderRefNumber is not None:
+                            tenderRefNumber_text = tenderRefNumber.get_attribute("innerText")
+                        else:
+                            tenderRefNumber_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Tender Reference Number. "
+                        print(name, error_message)
+                        tenderRefNumber_text = None
+                        # print(f"An error occurred while finding Tender Reference Number. ")
+                    
+                    try:
+                        tenderID = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, "//*[text()='Tender ID']/parent::*/following-sibling::td[1]")
+                            )
+                        )
+                        if tenderID is not None:
+                            tenderID_text = tenderID.get_attribute("innerText")
+                        else:
+                            tenderID_text = None
+
+                    except Exception as e:
+                        error_message = f" An error occurred while finding Organisation Chain. "
+                        print(name, error_message)
+                        tenderID_text = None
+                        # print(f"An error occurred while finding TenderTender ID. ")
+                    
+                    try:
+                        emdAmount = driver.find_element("xpath", "//*[contains(text(),'EMD Amount in ₹ ')]/following-sibling::td[1]")
+                        if emdAmount is not None:
+                            emdAmount_text = emdAmount.get_attribute("innerText")
+                        else:
+                            emdAmount_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding EMD Amount. "
+                        print(name, error_message)
+                        emdAmount_text = None
+                    
+                    try:
+                        tenderTitle = driver.find_element("xpath", "//*[text()='Title']/parent::*/following-sibling::td[1]")
+                        if tenderTitle is not None:
+                            tenderTitle_text = tenderTitle.get_attribute("innerText")
+                        else:
+                            tenderTitle_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Tender Title. "
+                        print(name, error_message)
+                        tenderTitle_text = None
+
+                    try:
+                        workDescription = driver.find_element("xpath", "//*[text()='Work Description']/parent::*/following-sibling::td[1]")
+                        if workDescription is not None:
+                            workDescription_text = workDescription.get_attribute("innerText")
+                        else:
+                            workDescription_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Work Description. "
+                        print(name, error_message)
+                        workDescription_text = None
+
+                    try:
+                        tenderValue = driver.find_element("xpath", "//*[text()='Tender Value in ₹ ']/parent::*/following-sibling::td[1]")
+                        if tenderValue is not None:
+                            tenderValue_text = tenderValue.get_attribute("innerText")
+                        else:
+                            tenderValue_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Tender Value. "
+                        print(name, error_message)
+                        tenderValue_text = None
+
+                    # Pre Bid Meeting Date
+                    try:
+                        prebidMeetDate = driver.find_element("xpath", "//*[text()='Pre Bid Meeting Date']/parent::*/following-sibling::td[1]")
+                        if prebidMeetDate is not None:
+                            prebidMeetDate_text = str(prebidMeetDate.get_attribute("innerText")).strip()
+                        else:
+                            prebidMeetDate_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Pre Bid Meeting Date. "
+                        print(name, error_message)
+                        prebidMeetDate_text = None
+
+                    try:
+                        bidSubmitEndDate = driver.find_element("xpath", "//*[text()='Bid Submission End Date']/parent::*/following-sibling::td[1]")
+                        if bidSubmitEndDate is not None:
+                            bidSubmitEndDate_text = bidSubmitEndDate.get_attribute("innerText")
+                        else:
+                            bidSubmitEndDate_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Bid Submission End Date. "
+                        print(name, error_message)
+                        bidSubmitEndDate_text = None
+
+                    try:
+                        publishedDate = driver.find_element("xpath", "//*[text()='Published Date']/parent::*/following-sibling::td[1]")
+                        if publishedDate is not None:
+                            publishedDate_text = publishedDate.get_attribute("innerText")
+                        else:
+                            publishedDate_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Published Date. "
+                        print(name, error_message)
+                        publishedDate_text = None
+
+                    try:
+                        tenderType = driver.find_element("xpath", "//*[contains(text(),'Tender Type')]/following-sibling::td[1]")
+                        if tenderType is not None:
+                            tenderType_text = tenderType.get_attribute("innerText")
+                        else:
+                            tenderType_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Tender Type. "
+                        print(name, error_message)
+                        tenderType_text = None
+                    
+                    try:
+                        tenderCat = WebDriverWait(driver, timeout).until(
+                            EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'Tender Category')]/following-sibling::td[1]"))
+                        )
+                        if tenderCat is not None:
+                            tenderCat_text = tenderCat.get_attribute("innerText")
+                        else:
+                            tenderCat_text = None
+                    except Exception as e:
+                        error_message = f" An error occurred while finding Tender Category: "
+                        print(name, error_message)
+                        tenderCat_text = None
+                        # print(f"An error occurred while finding tenderCat. ")
+
+                    if (name == "Coal_India" or name == "IOCL" or name == "West_Bengal"):
+                        tenderFee_text = None
+                    else:
+                        try:
+                            tenderFee = WebDriverWait(driver, timeout).until(
+                                EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'Tender Fee in ₹')]/following-sibling::td[1]"))
+                            )
+                            if tenderFee is not None:
+                                tenderFee_text = tenderFee.get_attribute("innerText")
+                            else:
+                                tenderFee_text = None
+                        except Exception as e:
+                            error_message = f" An error occurred while finding Tender Fee in ₹: "
+                            print(name, error_message)
+                            tenderFee_text = None
+
+                    try:
+                        location = driver.find_element("xpath", "//*[text()='Location']/parent::*/following-sibling::td[1]")
+                        if location is not None:
+                            location_text = location.get_attribute("innerText")
+                        else:
+                            location_text = None
+                    except NoSuchElementException as e:
+                        error_message = f"An error occurred while finding Location. "
+                        print(name, error_message)
+                        location_text = None
+
+                    try:
+                        periodofDays = driver.find_element("xpath", "//*[text()='Period Of Work(Days)']/parent::*/following-sibling::td[1]")
+                        if periodofDays is not None:
+                            periodofDays_text = periodofDays.get_attribute("innerText")
+                        else:
+                            periodofDays_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Period of Work (Days). "
+                        print(name, error_message)
+                        periodofDays_text = None
+
+                    try:
+                        docDownloadstart = driver.find_element("xpath", "//*[text()='Document Download / Sale End Date']/parent::*/following-sibling::td[1]")
+                        if docDownloadstart is not None:
+                            docDownloadstart_text = docDownloadstart.get_attribute("innerText")
+                        else:
+                            docDownloadstart_text = None
+                    except NoSuchElementException as e:
+                        error_message = f" An error occurred while finding Document Download / Sale End Date. "
+                        print(name, error_message)
+                        docDownloadstart_text = None
+                    
+
+                    worksheet1.write((cnt * 20)+j,0,orgChain_text)
+                    worksheet1.write((cnt * 20)+j,1,tenderRefNumber_text)
+                    worksheet1.write((cnt * 20)+j,2,tenderID_text)
+                    worksheet1.write((cnt * 20)+j,3,emdAmount_text)
+                    worksheet1.write((cnt * 20)+j,4,tenderTitle_text)
+                    worksheet1.write((cnt * 20)+j,5,workDescription_text)
+                    worksheet1.write((cnt * 20)+j,6,tenderValue_text)
+                    worksheet1.write((cnt * 20)+j,7,prebidMeetDate_text)
+                    worksheet1.write((cnt * 20)+j,8,bidSubmitEndDate_text)
+                    worksheet1.write((cnt * 20)+j,9,publishedDate_text)
+                    worksheet1.write((cnt * 20)+j,10,tenderType_text)
+                    worksheet1.write((cnt * 20)+j,11,tenderCat_text)
+                    worksheet1.write((cnt * 20)+j,12,tenderFee_text)
+                    worksheet1.write((cnt * 20)+j,13,location_text)
+                    worksheet1.write((cnt * 20)+j,14,periodofDays_text)
+                    worksheet1.write((cnt * 20)+j,15,docDownloadstart_text)
+                    urllabel = '' + name + '_Tenders'
+                    worksheet1.write((cnt * 20)+j,16, urllabel) 
+                    current_date = datetime.datetime.now().date()
+                    worksheet1.write((cnt * 20)+j,17,current_date.strftime("%d/%m/%Y"))
+
+                    driver.find_element("xpath", "//a[@id='DirectLink_11' and text()='Back']").click()
+
+                    no_of_tender_scraped = no_of_tender_scraped + 1
+                
+                cnt += 1
+                
+                print(" Page /", cnt)
+                try:
+                    driver.find_element(By.XPATH, ".//a[@id='linkFwd']").click()
+                except NoSuchElementException:
+
+                    break
+                
+
+            workbook.close()
+            packge = packaging()
+            print("Complited Exeting...")
+
+            # maildata = {
+            #     "Status": "Successfully Run",
+            #     "Total Tenders Scraped": no_of_tender_scraped
+            # }
+            # global_data.update({name: maildata})
+            
+        except Exception as e:
+            error_message = " having some issue not Successfully Run"
+            print(name, error_message)
+            # append_to_dictionary(name, 'Not Successfully Run. read state_tender_scraping_error.log')
+            maildata = {
+                "Status": "Not Successfully Run. read state_tender_scraping_error.log",
+                "Total Tenders Scraped": no_of_tender_scraped
+            }
+            error_data.update({name: maildata})
+            print(f"An exception occurred. ")
+
+
+
+
+
+
+# def send_mail(attach_log=False):
+#     sender_email = "tenderautomation@royalconstruct.in"
+#     receiver_emails = notification_emailids # ["am7059141480@gmail.com", "vmaskara@royalconstruct.com"] # 
+#     subject = "Tender Scraping Report - State Tender Scraping Successful"
+    
+#     notification_text = "This is an automated notification to inform you that the tender scraping process has been completed successfully\n\n"
+
+#     # Convert dictionary to JSON format
+#     json_data = json.dumps(error_data, indent=4)
+
+#     # Concatenate the notification text and JSON data
+#     json_data = notification_text + json_data
+
+#     # # Remove brackets from JSON data
+#     # json_object = json.loads(json_data)
+#     # if isinstance(json_object, list):
+#     #     json_data = json_object[0]
+
+#     # Create a MIMEText object
+#     msg = MIMEMultipart()
+#     msg.attach(MIMEText(json_data))
+
+#     # Set the sender and recipients
+#     msg['From'] = sender_email
+#     msg['To'] = ", ".join(receiver_emails)
+#     msg['Subject'] = subject
+
+#     # Attach the log file if requested
+#     if attach_log:
+#         log_file = "state_tender_scraping_error.log"
+#         if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+#             with open(log_file, "rb") as attachment:
+#                 part = MIMEBase("application", "octet-stream")
+#                 part.set_payload((attachment).read())
+#                 encoders.encode_base64(part)
+#                 part.add_header("Content-Disposition", "attachment; filename= %s" % log_file)
+#                 msg.attach(part)
+#         else:
+#             print(f"The file {log_file} is empty or does not exist. Not attaching to the email.")
+#             return
+
+#     # Establish a connection to the SMTP server
+#     smtp_server = "smtp.office365.com"
+#     port = 587
+
+#     username = "tenderautomation@royalconstruct.in"
+#     password = "Auto@2023"
+
+#     # Start the connection to the SMTP server
+#     server = smtplib.SMTP(smtp_server, port)
+#     server.starttls()
+#     server.login(username, password)
+
+#     # Send the email
+#     server.sendmail(sender_email, receiver_emails, msg.as_string())
+
+#     # Close the connection
+#     server.quit()
+
+#     print("\nEmail sent successfully!")
+
+
+
+
+import platform
+
+def send_mail(attach_log=False): 
+    receiver_emails = notification_emailids # ["am7059141480@gmail.com", "vmaskara@royalconstruct.com"] # 
+    subject = "Tender Scraping Report - State Tender Scraping Successful"
+    # Gather system information
+    system_info = (
+        f"System: {platform.system()}\n"
+        f"Hostname: {platform.node()}\n"
+        f"IP Address: {socket.gethostbyname(socket.gethostname())}\n"
+        f"Working Directory: {os.getcwd()}\n"
+        f"Windows Version: {platform.version()}\n\n"
+    )
+
+    # Construct the notification text
+    notification_text = "This is an automated notification to inform you that the tender scraping process has been completed successfully\n\n"
+    notification_text += system_info
+
+    # Convert dictionary to JSON format
+    json_data = json.dumps(error_data, indent=4)
+
+    # Concatenate the notification text and JSON data
+    email_body = notification_text + json_data
+
+    # Create a MIMEText object
+    msg = MIMEMultipart()
+    msg.attach(MIMEText(email_body))
+
+    # Set the sender and recipients
+    msg['From'] = sender_email_id
+    msg['To'] = ", ".join(receiver_emails)
+    msg['Subject'] = subject
+
+    # Attach the log file if requested
+    if attach_log:
+        log_file = "state_tender_scraping_error.log"
+        if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+            with open(log_file, "rb") as attachment:
+                part = MIMEBase("application", "octet-stream")
+                part.set_payload((attachment).read())
+                encoders.encode_base64(part)
+                part.add_header("Content-Disposition", "attachment; filename= %s" % log_file)
+                msg.attach(part)
+        else:
+            print(f"The file {log_file} is empty or does not exist. Not attaching to the email.")
+            return
+
+    # Establish a connection to the SMTP server
+    smtp_server = "smtp.office365.com"
+    port = 587
+
+    username = sender_email_id
+    password = sender_email_password
+
+    # Start the connection to the SMTP server
+    server = smtplib.SMTP(smtp_server, port)
+    server.starttls()
+    server.login(username, password)
+
+    # Send the email
+    server.sendmail(sender_email_id, receiver_emails, msg.as_string())
+
+    # Close the connection
+    server.quit()
+
+    print("\nEmail sent successfully!")
+
+
+
+
+
+class Tee:
+    def __init__(self, *files):
+        self.files = files
+
+    def write(self, text):
+        for file in self.files:
+            file.write(text)
+
+    def flush(self):
+        for file in self.files:
+            try:
+                file.flush()
+            except AttributeError:
+                pass  # Ignore AttributeError when file is closed
+
+
+
+def log_to_file(filename):
+    # Create a filename based on current date and time
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    new_filename = f"{filename}_{timestamp}.txt"
+    full_filename = os.path.join(script_dir_path, program_files_dir, "#log", new_filename)
+    # print(full_filename)
+    # time.sleep(1000)
+    
+    
+
+    # Open the log file in append mode for regular output
+    log_file = open(full_filename, 'a')
+
+    # Redirect stdout to the log file and console simultaneously
+    sys.stdout = Tee(sys.stdout, log_file)
+
+    try:
+
+            
+        # Your main script logic goes here
+        print(f"Starting script execution at {timestamp}\n")
+
+
+
+
+
+        def f1():
+
+            delete_folder(temp_dir_path)
+
+            create_folder_if_not_exists(temp_dir_path)
+
+            # calling Extr class for each portals
+            for portal in organizations:
+                    name, url = portal
+                    extr = Extr(name, url, temp_dir_path)
+                    # print(name, url, temp_dir_path)
+
+            create_folder_if_not_exists(dump_location)
+
+            # Iterate over all files in the folder_path
+            for filename in os.listdir(temp_dir_path):
+                if filename.endswith('.xlsx'):
+                    # Construct the full file path
+                    file_path = os.path.join(temp_dir_path, filename)
+                    
+                    # Read the Excel file
+                    df = pd.read_excel(file_path)
+                    
+                    # Replace 'NA' with 0.00
+                    df.replace('NA', 0.00, inplace=True)
+                    
+                    # Save the modified file to the final directory
+                    df.to_excel(os.path.join(dump_location, filename), index=False)
+
+            print("All files have been processed and saved to", dump_location)
+
+            
+            # mrg_xlsx_bydate()
+
+            # if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+            #     send_mail(attach_log=True)
+            # else:
+            #     send_mail()
+            send_mail()
+
+            time.sleep(2)
+
+        f1()
+
+        
+
+
+        print("Exiting... from tenders download program.")    
+        # Example: Simulate an exception
+        # Uncomment the following line to simulate an exception
+        # raise ValueError("This is a simulated exception")
+
+        print("\nScript execution completed.")
+
+    except Exception as e:
+        # Print the exception details to both console and error log file
+        error_message = f"Exception occurred during script execution: {e}"
+        print(error_message, file=sys.stderr)
+        log_file.write(error_message + "\n")  # Write the error message to log file
+
+    finally:
+        # Restore the original stdout
+        sys.stdout = sys.__stdout__  # Restore original stdout
+        log_file.close()              # Close the log file
+
+if __name__ == "__main__":
+    create_folder_if_not_exists(os.path.join(script_dir_path, program_files_dir, "#log"))
+    log_to_file("State-tenders-output_log")
+    sys.exit()
